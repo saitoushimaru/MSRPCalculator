@@ -3,64 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingredient Calculator with Retail Price</title>
+    <title>MSRP Calculator</title>
 </head>
 <body>
 
-    <h2>Ingredient Price, Weight, and Retail Price Calculator</h2>
+    <h2>MSRP Calculator</h2>
+
+    <h3>Ingredient Input</h3>
     <form id="ingredientForm">
-        <h3>Dry Ingredients</h3>
-        <div id="dryIngredients">
-            <div class="ingredient" id="dry1">
-                <label for="dry1Name">Dry Ingredient 1:</label>
-                <input type="text" id="dry1Name" name="dry1Name">
-                <label for="dry1Price">Price:</label>
-                <input type="number" id="dry1Price" name="dry1Price" step="0.01">
-                <label for="dry1Weight">Weight (g):</label>
-                <input type="number" id="dry1Weight" name="dry1Weight" step="0.01">
-                <label for="dry1PricePerGram">Price per Gram:</label>
-                <input type="number" id="dry1PricePerGram" name="dry1PricePerGram" step="0.0001" readonly>
-                <button type="button" onclick="deleteIngredient('dry1')">Delete</button><br><br>
+        <div id="ingredientsSection">
+            <div class="ingredient" id="ingredient1">
+                <label for="ingredient1Name">Ingredient Name:</label>
+                <input type="text" id="ingredient1Name" name="ingredient1Name">
+                <label for="ingredient1Price">Price:</label>
+                <input type="number" id="ingredient1Price" name="ingredient1Price" step="0.01">
+                <label for="ingredient1Weight">Weight (g):</label>
+                <input type="number" id="ingredient1Weight" name="ingredient1Weight" step="0.01">
+                <button type="button" onclick="addIngredient()">Add Ingredient</button><br><br>
             </div>
         </div>
-        <button type="button" onclick="addDryIngredient()">Add Dry Ingredient</button><br><br>
-
-        <h3>Wet Ingredients</h3>
-        <div id="wetIngredients">
-            <div class="ingredient" id="wet1">
-                <label for="wet1Name">Wet Ingredient 1:</label>
-                <input type="text" id="wet1Name" name="wet1Name">
-                <label for="wet1Price">Price:</label>
-                <input type="number" id="wet1Price" name="wet1Price" step="0.01">
-                <label for="wet1Weight">Weight (ml):</label>
-                <input type="number" id="wet1Weight" name="wet1Weight" step="0.01">
-                <label for="wet1PricePerGram">Price per ml:</label>
-                <input type="number" id="wet1PricePerGram" name="wet1PricePerGram" step="0.0001" readonly>
-                <button type="button" onclick="deleteIngredient('wet1')">Delete</button><br><br>
-            </div>
-        </div>
-        <button type="button" onclick="addWetIngredient()">Add Wet Ingredient</button><br><br>
-
-        <label for="weightPerUnit">Weight of One Unit (g/ml):</label>
-        <input type="number" id="weightPerUnit" name="weightPerUnit" step="0.01"><br><br>
-
-        <label for="numUnits">Number of Units to be Produced:</label>
-        <input type="number" id="numUnits" name="numUnits" step="1" min="1"><br><br>
-
-        <label for="markup">Markup Percentage (%):</label>
-        <input type="number" id="markup" name="markup" step="0.01"><br><br>
-
-        <input type="button" value="Calculate" onclick="calculateTotal()">
     </form>
 
-    <h3>Results:</h3>
-    <div id="totalPrice"></div>
-    <div id="totalWeight"></div>
-    <div id="numberOfUnits"></div>
-    <div id="pricePerUnit"></div>
-    <div id="retailPrice"></div>
+    <h3>Recipe and Pricing</h3>
 
-    <script src="scripts/scripts.js"></script>
+    <label for="ingredientSelect">Select Ingredient:</label>
+    <select id="ingredientSelect">
+        <option value="" disabled selected>Select Ingredient</option>
+    </select>
+    <label for="ingredientWeightNeeded">Amount of Ingredient Needed for Recipe (g):</label>
+    <input type="number" id="ingredientWeightNeeded" name="ingredientWeightNeeded" step="0.01"><br><br>
+    <button type="button" onclick="addIngredientToRecipe()">Add Ingredient to Recipe</button><br><br>
+
+    <div id="recipeIngredients"></div>
+
+    <label for="numUnitsProduced">Number of Units Produced:</label>
+    <input type="number" id="numUnitsProduced" name="numUnitsProduced" step="1" min="1"><br><br>
+
+    <label for="markup">Markup Percentage (%):</label>
+    <input type="number" id="markup" name="markup" step="0.01"><br><br>
+
+    <input type="button" value="Calculate MSRP" onclick="calculateMSRP()">
+
+    <h3>Results:</h3>
+    <div id="ingredientCostPerUnit"></div>
+    <div id="msrp"></div>
+
+    <script>
+        let ingredients = [];  // Array to store the ingredient details
+        let recipe = [];       // Array to store ingredients needed for the recipe
+
+        // Function to add an ingredient
+        function addIngredient() {
+            const name = document.getElementById('ingredient1Name').value;
+            const price = parseFloat(document.getElementById('ingredient1Price').value) || 0;
+            const weight = parseFloat(document.getElementById('ingredient1Weight').value) || 0;
+
+            if (name && price && weight) {
+                const pricePerGram = weight > 0 ? price / weight : 0;
+
+                // Add ingredient to the ingredients array
+                ingredients.push({ name, price, weight, pricePerGram });
+
+                // Add ingredient to the select dropdown
+                const select = document.getElementById('ingredientSelect');
+                const option = document.createElement('option');
+                option.value = ingredients.length - 1;  // Use the index as the value
+                option.text = name;
+                select.appendChild(option);
+
+                // Clear the input fields
+                document.getElementById('ingredient1Name').value = '';
+                document.getElementById('ingredient1Price').value = '';
+                document.getElementById('ingredient1Weight').value = '';
+            }
+        }
+
+        // Function to add ingredient to the recipe
+        function addIngredientToRecipe() {
+            const ingredientIndex = document.getElementById('ingredientSelect').value;
+            const amountNeeded = parseFloat(document.getElementById('ingredientWeightNeeded').value) || 0;
+
+            if (ingredientIndex !== "" && amountNeeded > 0) {
+                const selectedIngredient = ingredients[ingredientIndex];
+                const totalCost = selectedIngredient.pricePerGram * amountNeeded;
+
+                // Add the selected ingredient and its cost to the recipe array
+                recipe.push({
+                    name: selectedIngredient.name,
+                    amountNeeded,
+                    totalCost
+                });
+
+                // Display the ingredient in the recipe list
+                const recipeDiv = document.getElementById('recipeIngredients');
+                recipeDiv.innerHTML += `<p>${selectedIngredient.name}: ${amountNeeded}g - Cost: $${totalCost.toFixed(2)}</p>`;
+
+                // Clear the input fields
+                document.getElementById('ingredientSelect').value = '';
+                document.getElementById('ingredientWeightNeeded').value = '';
+            }
+        }
+
+        // Function to calculate MSRP
+        function calculateMSRP() {
+            const numUnitsProduced = parseFloat(document.getElementById('numUnitsProduced').value) || 1;
+            const markup = parseFloat(document.getElementById('markup').value) || 0;
+
+            // Calculate total ingredient cost for the recipe
+            let totalRecipeCost = 0;
+            recipe.forEach(ingredient => {
+                totalRecipeCost += ingredient.totalCost;
+            });
+
+            // Calculate cost per unit
+            const costPerUnit = numUnitsProduced > 0 ? totalRecipeCost / numUnitsProduced : 0;
+
+            // Calculate MSRP with markup
+            const msrp = costPerUnit * (1 + markup / 100);
+
+            // Display results
+            document.getElementById('ingredientCostPerUnit').innerText = "Cost per Unit: $" + costPerUnit.toFixed(4);
+            document.getElementById('msrp').innerText = "MSRP: $" + msrp.toFixed(4);
+        }
+    </script>
 
 </body>
 </html>
