@@ -4,49 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSRP Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
 
-    <h2>MSRP Calculator</h2>
+    <div class="container my-5">
+        <h2 class="text-center">MSRP Calculator for Bakery</h2>
+        <p>This calculator is used only to estimate and calculate the retail price of bakery products. Use the price calculated only as a reference. Some features will be added soon ^-^</p>
 
-    <h3>Ingredient Input</h3>
-    <form id="ingredientForm">
-        <div id="ingredientsSection">
-            <div class="ingredient" id="ingredient1">
-                <label for="ingredient1Name">Ingredient Name:</label>
-                <input type="text" id="ingredient1Name" name="ingredient1Name">
-                <label for="ingredient1Price">Price:</label>
-                <input type="number" id="ingredient1Price" name="ingredient1Price" step="0.01">
-                <label for="ingredient1Weight">Weight (g):</label>
-                <input type="number" id="ingredient1Weight" name="ingredient1Weight" step="0.01">
-                <button type="button" onclick="addIngredient()">Add Ingredient</button><br><br>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Ingredient Input</h3>
+                <form id="ingredientForm">
+                    <div id="ingredientsSection">
+                        <div class="ingredient mb-3" id="ingredient1">
+                            <label for="ingredient1Name" class="form-label">Ingredient Name:</label>
+                            <input type="text" id="ingredient1Name" name="ingredient1Name" class="form-control mb-2">
+                            
+                            <label for="ingredient1Price" class="form-label">Price:</label>
+                            <input type="number" id="ingredient1Price" name="ingredient1Price" step="0.01" class="form-control mb-2">
+                            
+                            <label for="ingredient1Weight" class="form-label">Weight (g)/Volume (ml):</label>
+                            <input type="number" id="ingredient1Weight" name="ingredient1Weight" step="0.01" class="form-control mb-2">
+                            
+                            <button type="button" class="btn btn-primary mt-2" onclick="addIngredient()">Add Ingredient</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </form>
 
-    <h3>Recipe and Pricing</h3>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Recipe and Pricing</h3>
 
-    <label for="ingredientSelect">Select Ingredient:</label>
-    <select id="ingredientSelect">
-        <option value="" disabled selected>Select Ingredient</option>
-    </select>
-    <label for="ingredientWeightNeeded">Amount of Ingredient Needed for Recipe (g):</label>
-    <input type="number" id="ingredientWeightNeeded" name="ingredientWeightNeeded" step="0.01"><br><br>
-    <button type="button" onclick="addIngredientToRecipe()">Add Ingredient to Recipe</button><br><br>
+                <div class="mb-3">
+                    <label for="ingredientSelect" class="form-label">Select Ingredient:</label>
+                    <select id="ingredientSelect" class="form-select">
+                        <option value="" disabled selected>Select Ingredient</option>
+                    </select>
+                </div>
 
-    <div id="recipeIngredients"></div>
+                <div class="mb-3">
+                    <label for="ingredientWeightNeeded" class="form-label">Amount of Ingredient Needed for Recipe (g)/(ml):</label>
+                    <input type="number" id="ingredientWeightNeeded" name="ingredientWeightNeeded" step="0.01" class="form-control">
+                </div>
 
-    <label for="numUnitsProduced">Number of Units Produced:</label>
-    <input type="number" id="numUnitsProduced" name="numUnitsProduced" step="1" min="1"><br><br>
+                <button type="button" class="btn btn-success mb-3" onclick="addIngredientToRecipe()">Add Ingredient to Recipe</button>
 
-    <label for="markup">Markup Percentage (%):</label>
-    <input type="number" id="markup" name="markup" step="0.01"><br><br>
+                <div id="recipeIngredients"></div>
 
-    <input type="button" value="Calculate MSRP" onclick="calculateMSRP()">
+                <div class="mb-3">
+                    <label for="numUnitsProduced" class="form-label">Number of Units Produced:</label>
+                    <input type="number" id="numUnitsProduced" name="numUnitsProduced" step="1" min="1" class="form-control">
+                </div>
 
-    <h3>Results:</h3>
-    <div id="ingredientCostPerUnit"></div>
-    <div id="msrp"></div>
+                <div class="mb-3">
+                    <label for="markup" class="form-label">Markup Percentage (%):</label>
+                    <input type="number" id="markup" name="markup" step="0.01" class="form-control">
+                </div>
+
+                <button type="button" class="btn btn-info" onclick="calculateMSRP()">Calculate MSRP</button>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Results:</h3>
+                <div id="ingredientCostPerUnit" class="alert alert-info"></div>
+                <div id="msrp" class="alert alert-success"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
         let ingredients = [];  // Array to store the ingredient details
@@ -96,7 +126,7 @@
 
                 // Display the ingredient in the recipe list
                 const recipeDiv = document.getElementById('recipeIngredients');
-                recipeDiv.innerHTML += `<p>${selectedIngredient.name}: ${amountNeeded}g - Cost: $${totalCost.toFixed(2)}</p>`;
+                recipeDiv.innerHTML += `<p>${selectedIngredient.name}: ${amountNeeded}g - Cost: MYR${totalCost.toFixed(2)}</p>`;
 
                 // Clear the input fields
                 document.getElementById('ingredientSelect').value = '';
@@ -122,10 +152,12 @@
             const msrp = costPerUnit * (1 + markup / 100);
 
             // Display results
-            document.getElementById('ingredientCostPerUnit').innerText = "Cost per Unit: $" + costPerUnit.toFixed(4);
-            document.getElementById('msrp').innerText = "MSRP: $" + msrp.toFixed(4);
+            document.getElementById('ingredientCostPerUnit').innerText = "Cost per Unit: MYR" + costPerUnit.toFixed(4);
+            document.getElementById('msrp').innerText = "MSRP: MYR" + msrp.toFixed(4);
         }
     </script>
-
+<footer>
+    all rights reserved. Created by shimaru7. 2024
+</footer>
 </body>
 </html>
